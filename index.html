@@ -1,0 +1,69 @@
+<html>
+    <head>
+        <title>Is Steam down?</title>
+    </head>
+    <body>
+        {{ if gt .HealthyPct 90 }}
+            <h1>
+                No, it's (probably) just you.
+            </h1>
+        {{ else }}
+            <h1>
+                Yes, Steam is down.
+            </h1>
+        {{ end }}
+
+        You can always check <a href="https://steamstat.us/">steamstat.us</a> for a second opinion.
+
+        <h3>Connection managers</h3>
+        As I see it, about {{ .HealthyPct }}% of all Steam connection managers are online. Connection managers are the "edge servers" you connect directly to in order to access Steam. We keep constant connections to these edge servers and track when one goes down.
+        <h3>Web services</h3>
+        We check these every 30ish seconds.<br><br>
+
+        <table border=1>
+            <tbody>
+                <tr>
+                    <td>
+                        <a href="https://store.steampowered.com/" target="_blank">Store</a>
+                    </td>
+                    <td>
+                        {{ if .Store }}
+                            OK
+                        {{ else }}
+                            Offline
+                        {{ end }}
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <a href="https://steamcommunity.com/" target="_blank">Community</a>
+                    </td>
+                    <td>
+                        {{ if .Community }}
+                            OK
+                        {{ else }}
+                            Offline
+                        {{ end }}
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Web API
+                    </td>
+                    <td>
+                        {{ if .API }}
+                            OK
+                        {{ else }}
+                            Offline
+                        {{ end }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <br><br>
+
+        Site (ugly beta!) hosted by <a href="https://cutie.cafe" target="_blank">Cutie Caf&eacute;</a> using <a href="https://github.com/antigravities/maria" target="_blank">maria</a> and <a href="https://github.com/antigravities/emily" target="_blank">emily</a>.
+
+    </body>
+</html>
