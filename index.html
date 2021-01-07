@@ -2,68 +2,174 @@
     <head>
         <title>Is Steam down?</title>
     </head>
+    <style type="text/css">
+        .row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .col {
+            text-align: center;
+        }
+
+        .col:not(:last-child) {
+            padding-right: 10vw;
+        }
+
+        .container {
+            padding: 0.5%;
+        }
+
+        h1 {
+            text-align: center;
+            padding: 0;
+            margin: 0;
+        }
+
+        .tagline {
+            text-align: center;
+            font-style: italic;
+        }
+
+        .centered {
+            text-align: center;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .tip {
+            border-bottom: 1px dotted black;
+            cursor: help;
+        }
+
+        td {
+            padding: 0 1rem 0 1rem;
+        }
+    </style>
+
+    <script>
+        let loading = false;
+        let seconds = 29;
+
+        window.addEventListener("load", () => {
+            setInterval(() => {
+                if( loading ){
+                    document.querySelector("#refresh").innerText = "Refreshing...";
+                } else {
+                    document.querySelector("#refresh").innerText = "This page will refresh in " + seconds + " second(s).";
+                    seconds--;
+                }
+
+            }, 1000);
+
+            setInterval(async () => {
+                loading = true;
+
+                let ele = document.createElement("div");
+                ele.innerHTML = await (await fetch("/")).text();
+
+                document.querySelector("#status-container").innerHTML = ele.querySelector("#status-container").innerHTML;
+                document.querySelector("#status-text").innerText = ele.querySelector("#status-text").innerText.trim();
+
+                loading = false;
+                seconds = 29;
+            }, 30000);
+        });
+    </script>
+
     <body>
-        {{ if gt .HealthyPct 90 }}
-            <h1>
-                No, it's (probably) just you.
+        <div class="container">
+            <h1 id="status-text">
+                {{ if and (gt .HealthyPct 90) (.Store) (.Community) (.API) }}
+                    No, it's (probably) just you.
+                {{ else }}
+                    Yes, Steam is down.
+                {{ end }}
             </h1>
-        {{ else }}
-            <h1>
-                Yes, Steam is down.
-            </h1>
-        {{ end }}
 
-        You can always check <a href="https://steamstat.us/">steamstat.us</a> for a second opinion.
+            <hr>
 
-        <h3>Connection managers</h3>
-        As I see it, about {{ .HealthyPct }}% of all Steam connection managers are online. Connection managers are the "edge servers" you connect directly to in order to access Steam. We keep constant connections to these edge servers and track when one goes down.
-        <h3>Web services</h3>
-        We check these every 30ish seconds.<br><br>
+            <div id="status-container" class="row">
+                <div class="col">
+                    <h1>{{ .HealthyPct }}%</h1>
+                    <a class="tip" title="Servers that authenticate you and connect you to the Steam network">connection managers</a>
+                </div>
 
-        <table border=1>
-            <tbody>
-                <tr>
-                    <td>
-                        <a href="https://store.steampowered.com/" target="_blank">Store</a>
-                    </td>
-                    <td>
-                        {{ if .Store }}
-                            OK
-                        {{ else }}
-                            Offline
-                        {{ end }}
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <a href="https://steamcommunity.com/" target="_blank">Community</a>
-                    </td>
-                    <td>
-                        {{ if .Community }}
-                            OK
-                        {{ else }}
-                            Offline
-                        {{ end }}
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        Web API
-                    </td>
-                    <td>
-                        {{ if .API }}
-                            OK
-                        {{ else }}
-                            Offline
-                        {{ end }}
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        
-        <br><br>
+                <div class="col">
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <a class="tip" title="The Steam Store, including store pages and wishlists">Store</a>
+                                </td>
+                                <td>
+                                    {{ if .Store }}
+                                        OK
+                                    {{ else }}
+                                        Offline
+                                    {{ end }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <a class="tip" title="The Steam Community, including profiles, trading, Community Market, discussions, and Community Hubs">Community</a>
+                                </td>
+                                <td>
+                                    {{ if .Community }}
+                                        OK
+                                    {{ else }}
+                                        Offline
+                                    {{ end }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <a class="tip" title="The Steam Web API, used by external Web sites and tools to fetch data about user profiles and enhance the Steam experience">Web API</a>
+                                </td>
+                                <td>
+                                    {{ if .API }}
+                                        OK
+                                    {{ else }}
+                                        Offline
+                                    {{ end }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-        Site (ugly beta!) hosted by <a href="https://cutie.cafe" target="_blank">Cutie Caf&eacute;</a> using <a href="https://github.com/antigravities/maria" target="_blank">maria</a> and <a href="https://github.com/antigravities/emily" target="_blank">emily</a>.
+            <p id="refresh" class="centered"></p>
 
+            <p class="tagline">
+                This site is beta-quality software - you can always check <a href="https://steamstat.us/">steamstat.us</a> for a second opinion.
+            </p>
+
+            <hr>
+
+            <h2>Why is Steam down?</h2>
+            Most instances of downtime are planned for Tuesday afternoons at about 4PM Pacific (Valve time) to perform routine
+            maintenance to the Steam servers as this is when the least number of players are on and there are team members in
+            the office to assist with any hiccups. Unplanned downtime may happen at any time for any reason - we don't know more
+            than you do.
+
+            <h2>When will Steam be back up?</h2>
+            Sometimes downtime only lasts for 10 minutes, sometimes for a half an hour to an hour. Again, we don't know more
+            than you do, so stay tuned to see when Steam comes back up.
+
+            <h2>Is there a way to obtain this information programatically? Do you provide an API?</h2>
+            Yes. While this site does not provide an API (and we discourage screen-scrapers), <a href="https://github.com/antigravities/emily" target="_blank">emily</a>
+            provides a microservice that tracks Steam status. This site itself is <a href="https://github.com/antigravities/maria" target="_blank">open source</a>, also.
+
+            <hr>
+
+            <p class="centered">
+                Site hosted by <a href="https://cutie.cafe" target="_blank">Cutie Caf&eacute;</a> using <a href="https://github.com/antigravities/maria" target="_blank">maria</a> and <a href="https://github.com/antigravities/emily" target="_blank">emily</a>.<br>
+                Powered by, but in no way affiliated with, <a href="https://store.steampowered.com/" target="_blank">Steam</a>.
+            </p>
+        </div>
     </body>
 </html>
